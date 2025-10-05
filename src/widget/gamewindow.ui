@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>919</width>
+    <width>786</width>
     <height>704</height>
    </rect>
   </property>
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="backToMain">
    <property name="geometry">
     <rect>
-     <x>800</x>
-     <y>10</y>
+     <x>640</x>
+     <y>20</y>
      <width>111</width>
      <height>31</height>
     </rect>
@@ -29,8 +29,8 @@
   <widget class="QPushButton" name="startBut">
    <property name="geometry">
     <rect>
-     <x>800</x>
-     <y>50</y>
+     <x>640</x>
+     <y>60</y>
      <width>111</width>
      <height>31</height>
     </rect>
@@ -42,14 +42,71 @@
   <widget class="QPushButton" name="resetBut">
    <property name="geometry">
     <rect>
-     <x>800</x>
-     <y>90</y>
+     <x>640</x>
+     <y>100</y>
      <width>111</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
     <string>重置棋盘</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>150</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪黑神话</family>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>当前回合：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="whoTurn">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>210</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪黑神话</family>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>黑棋</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="whoWin">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>600</y>
+     <width>291</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪黑神话</family>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>你能打败流萤吗</string>
    </property>
   </widget>
  </widget>

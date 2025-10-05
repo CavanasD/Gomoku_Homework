@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>881</width>
-    <height>665</height>
+    <height>610</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>-10</x>
      <y>0</y>
      <width>921</width>
-     <height>481</height>
+     <height>621</height>
     </rect>
    </property>
    <property name="text">
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>540</y>
+     <y>490</y>
      <width>251</width>
      <height>101</height>
     </rect>
@@ -48,14 +48,14 @@
     </font>
    </property>
    <property name="text">
-    <string>我要对战AI</string>
+    <string>我要对战流萤</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>490</y>
+     <y>440</y>
      <width>221</width>
      <height>31</height>
     </rect>
@@ -72,8 +72,8 @@
   <widget class="QPushButton" name="pvpBut">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>540</y>
+     <x>320</x>
+     <y>490</y>
      <width>251</width>
      <height>101</height>
     </rect>
@@ -85,14 +85,14 @@
     </font>
    </property>
    <property name="text">
-    <string>我要对战我自己</string>
+    <string>我是虚b，只能自己打</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitBut">
    <property name="geometry">
     <rect>
-     <x>620</x>
-     <y>540</y>
+     <x>600</x>
+     <y>490</y>
      <width>251</width>
      <height>101</height>
     </rect>
@@ -110,26 +110,27 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>370</x>
-     <y>30</y>
-     <width>221</width>
-     <height>31</height>
+     <x>280</x>
+     <y>40</y>
+     <width>261</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>汉仪国图创新红楼梦</family>
+     <pointsize>24</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700;&quot;&gt;九鸟的五子棋&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>九鸟的五子棋</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>100</y>
+     <x>280</x>
+     <y>120</y>
      <width>221</width>
      <height>31</height>
     </rect>
@@ -141,6 +142,24 @@
    </property>
    <property name="text">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700;&quot;&gt;你能打败流萤酱吗？&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>170</y>
+     <width>221</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪国图创新红楼梦</family>
+    </font>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700;&quot;&gt;流萤酱可爱喵&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
