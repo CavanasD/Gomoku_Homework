@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- 例如：<file>icons/app.png</file> -->
+        <file>img/test.png</file>
+    </qresource>
+</RCC>
