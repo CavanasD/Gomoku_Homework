@@ -24,6 +24,10 @@ public:
 
     ~Gomoku() override;
 
+private slots:   // 槽函数声明区
+    void on_vsAIBut_clicked();
+    void on_pvpBut_clicked();
+    static void on_exitBut_clicked();
 private:
     Ui::Gomoku *ui;
 };

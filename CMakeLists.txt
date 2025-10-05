@@ -90,7 +90,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(project_warnings INTERFACE
         src/widget/gomoku.cpp
         src/widget/gomoku.h
-        src/widget/gomoku.ui)
+        src/widget/gomoku.ui
+        src/widget/gamewindow.cpp
+        src/widget/gamewindow.h
+        src/widget/gamewindow.ui)
 target_compile_options(project_warnings INTERFACE
         # MSVC 选项
         $<$<CXX_COMPILER_ID:MSVC>:
@@ -126,7 +129,11 @@ source_group(TREE ${PROJECT_ROOT_DIR} FILES ${SRC_FILES})
 add_executable(${APP_NAME} ${SRC_FILES}
         src/widget/gomoku.cpp
         src/widget/gomoku.h
-        src/widget/gomoku.ui)
+        src/widget/gomoku.ui
+        src/widget/ui_gomoku.h
+        src/widget/gamewindow.cpp
+        src/widget/gamewindow.h
+        src/widget/gamewindow.ui)
 
 # 链接库和编译器选项
 # PRIVATE 表示只对本目标生效
