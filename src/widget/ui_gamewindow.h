@@ -14,6 +14,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include "chessboard.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -26,6 +27,7 @@ public:
     QLabel *label;
     QLabel *whoTurn;
     QLabel *whoWin;
+    ChessBoard *chessBoardWidget;
 
     void setupUi(QWidget *gameWindow)
     {
@@ -56,6 +58,9 @@ public:
         whoWin->setObjectName("whoWin");
         whoWin->setGeometry(QRect(280, 600, 291, 51));
         whoWin->setFont(font);
+        chessBoardWidget = new ChessBoard(gameWindow);
+        chessBoardWidget->setObjectName("chessBoardWidget");
+        chessBoardWidget->setGeometry(QRect(20, 10, 571, 571));
 
         retranslateUi(gameWindow);
 

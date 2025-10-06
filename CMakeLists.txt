@@ -133,7 +133,14 @@ add_executable(${APP_NAME} ${SRC_FILES}
         src/widget/ui_gomoku.h
         src/widget/gamewindow.cpp
         src/widget/gamewindow.h
-        src/widget/gamewindow.ui)
+        src/widget/gamewindow.ui
+        src/widget/chessboard.cpp
+        src/widget/chessboard.h
+        src/widget/chessboard.ui
+        src/widget/gomokuLogic.cpp
+        src/widget/gomokuLogic.h
+        src/widget/aibrain.cpp
+        src/widget/aibrain.h)
 
 # 链接库和编译器选项
 # PRIVATE 表示只对本目标生效

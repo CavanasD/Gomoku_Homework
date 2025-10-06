@@ -81,17 +81,17 @@
    <property name="font">
     <font>
      <family>汉仪国图创新红楼梦</family>
-     <pointsize>18</pointsize>
+     <pointsize>22</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>我是虚b，只能自己打</string>
+    <string>我要自己玩！</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitBut">
    <property name="geometry">
     <rect>
-     <x>600</x>
+     <x>610</x>
      <y>490</y>
      <width>251</width>
      <height>101</height>
@@ -111,15 +111,15 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>100</y>
-     <width>261</width>
+     <y>90</y>
+     <width>371</width>
      <height>51</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>汉仪国图创新红楼梦</family>
-     <pointsize>24</pointsize>
+     <pointsize>36</pointsize>
     </font>
    </property>
    <property name="text">
@@ -131,24 +131,25 @@
     <rect>
      <x>290</x>
      <y>240</y>
-     <width>221</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>汉仪国图创新红楼梦</family>
+     <pointsize>24</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700;&quot;&gt;你能打败流萤酱吗？&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>你能打败流萤酱吗？</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>280</y>
+     <x>20</x>
+     <y>30</y>
      <width>221</width>
      <height>31</height>
     </rect>
