@@ -140,6 +140,8 @@ void gameWindow::on_startBut_clicked() {
     if (!gameActive) {
          gameActive = true;
         on_resetBut_clicked();
+        ui->whoWin->setText("你能打败流萤酱吗");
+        ui->whoWin->setText("喜欢流萤酱喵");
         updateTurnLabel();
     }
 }
@@ -156,7 +158,7 @@ void gameWindow::on_resetBut_clicked() {
     // Trigger RePaint Event
     update();
     updateTurnLabel();
-
+    ui->whoWin->setText("你能打败流萤酱吗");
 }
 // ==================== MainL =====================
 void gameWindow::paintEvent(QPaintEvent *event) {
@@ -250,6 +252,10 @@ void gameWindow::mouseMoveEvent(QMouseEvent *event) {
         moveY = y;
         update(); // 触发重绘
     }
+}
+
+void gameWindow::fuckingAlgoPart() {
+
 }
 
 void gameWindow::mousePressEvent(QMouseEvent *event) {
