@@ -12,13 +12,15 @@ Gomoku::~Gomoku() {
 
 void Gomoku::on_vsAIBut_clicked() {
     this->close();
-    auto *gw = new gameWindow();
+    // 人机模式：默认让 AI 扮演白棋（玩家先手）
+    auto *gw = new gameWindow(true, GomokuLogic::White);
     gw->setAttribute(Qt::WA_DeleteOnClose);
     gw->show();
 }
 void Gomoku::on_pvpBut_clicked() {
     this->close();
-    auto *gw = new gameWindow();
+    // 人人模式：不启用 AI
+    auto *gw = new gameWindow(false);
     gw->setAttribute(Qt::WA_DeleteOnClose);
     gw->show();
 }
