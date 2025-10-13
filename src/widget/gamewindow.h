@@ -14,6 +14,12 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
+// 窗口层（View + Controller）：
+// - 负责把 UI 事件（按钮、棋盘点击）与逻辑层（GomokuLogic）对接
+// - 不直接改动棋盘数组，只通过 logic.placePiece(x,y) 推进状态
+// - 【如何获取棋盘信息】调用 logic.getBoard()（15x15，0空/1黑/2白），最后一步 logic.lastX()/lastY()
+// - 【如何获取当前玩家】logic.currentPlayer()（Black/White）
+// - 【AI 触发点/剪枝接入点】在 triggerAIMove() 中调用 aiBrain->getBestMove(board)
 class gameWindow : public QWidget {
     Q_OBJECT
 public:
@@ -27,26 +33,28 @@ private slots:
     void on_startBut_clicked();
     void on_resetBut_clicked();
 
-    // New: handle click from ChessBoard
+    // 来自 ChessBoard 的点击信号（x 行，y 列）；此处仅转发给逻辑层 placePiece
     void handleBoardClick(int x, int y);
 
 private:
+    // 仅根据当前状态刷新“轮到谁”标签（不改变模型）
     void updateTurnLabel() const;
-    // 新增：触发 AI 思考并落子
+    // AI 回合入口：从 logic.getBoard() 读取棋盘，调用 aiBrain->getBestMove()
+    // 剪枝算法（如 Alpha-Beta / MCTS 的邻域裁剪）应实现于 AIBrain 的具体类中
     void triggerAIMove();
 
-    Ui::gameWindow *ui;
+    Ui::gameWindow *ui;              // UI 由 Qt Designer 生成
 
-    // Game state manager
-    GomokuLogic logic;
+    GomokuLogic logic;               // 逻辑层（Model）：维护棋盘/当前玩家/胜负
 
-    bool gameActive{false};
+    bool gameActive{false};          // 是否已经点击“开始”
 
-    // 新增：人机模式与 AI 侧
+    // 人机模式配置：是否 vsAI、AI 执哪方、是否在思考中（用于 UI 提示）
     bool vsAI{false};
     GomokuLogic::Player aiSide{GomokuLogic::White};
     bool aiThinking{false};
 
+    // AI 引擎：通过统一接口解耦具体算法（MCTS、Alpha-Beta 等）
     std::unique_ptr<AIBrain> aiBrain;
 };
 

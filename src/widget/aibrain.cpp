@@ -4,280 +4,151 @@
 
 #include "aibrain.h"
 
-#include <vector>
-#include <memory>
-#include <random>
-#include <chrono>
-#include <algorithm>
-#include <cmath>
-#include <limits>
+// ==========================================
+// 说明：按你的要求，已剔除原有“自动下棋算法”的实现。
+// 下面仅保留最小可编译的桩（stub），并用中文注释提供清晰的“从哪里开始写起”的路线图。
+// 你可以在本文件内自由实现你自己的搜索（MCTS / Alpha-Beta / 规则启发等），
+// 只需要保证 getBestMove(const int (*board)[15]) 返回一个 (x,y)。
+// 注意：不要改头文件的对外接口（已有窗口代码依赖它）。
+// ==========================================
 
-namespace {
+// ==========================================
+// 起步说明（强烈建议先通读再动手）：
+// 1) 棋盘与玩家约定
+//    - 棋盘是 15x15 的整型数组：0=空，1=黑，2=白。
+//    - AIBrain::getBestMove 只有一个参数 board（const int (*board)[15]）。
+//    - 当前“轮到谁走”并未显式传入，你可以在内部通过“数子法”推断：
+//      统计棋盘内 1 和 2 的数量，黑先规则：
+//      若 count(1)==count(2) 则轮到黑(1)；否则轮到白(2)。
+//
+// 2) 你可以选的两条路：
+//    A) Alpha-Beta（极大极小 + 剪枝）：
+//       - 关键组件：
+//         generateMoves(board)         // 生成合法着法（可做邻域裁剪、着法排序）
+//         evaluate(board, lastX,lastY) // 局面评估（活三/冲四等评分）
+//         terminal(board,lastX,lastY)  // 五连胜/和棋检测
+//         alphabeta(board,depth,alpha,beta,player,deadline)
+//       - 推荐技巧：迭代加深 + 时间截止、置换表、历史启发、空位邻域（只在有子处外扩 R 范围内考虑着法）。
+//       - 从小深度开始，先保证正确，再逐步加排序/剪枝。
+//
+//    B) MCTS（蒙特卡洛树搜索）：
+//       - 四阶段：Selection -> Expansion -> Simulation -> Backpropagation。
+//       - 关键组件：UCT 选择、邻域候选生成、随机/半随机模拟、以根玩家视角回传胜分。
+//       - 控制规模：时间上限（ms）或迭代上限 + 邻域裁剪。
+//       - 先实现一个最简版本，再补充启发与裁剪。
+//
+// 3) 与窗口对接：
+//    - 窗口层会在你的回合调用 getBestMove(board)。如果你返回 {-1,-1}，窗口层会兜底找一个空位。
+//    - 最好返回一个“你确定的着点”，这样 UI 就不会走兜底逻辑。
+//
+// 4) 参考文献（由你提供）：
+//    - https://blog.csdn.net/weixin_39788534/article/details/79508843
+//    - https://blog.csdn.net/weixin_39788534/article/details/79526225
+//    - https://blog.csdn.net/weixin_39788534/article/details/79504961
+//    - https://blog.csdn.net/weixin_39788534/article/details/79501254
+// ==========================================
 
-struct Rand {
-    std::mt19937 rng;
-    Rand() {
-        std::random_device rd;
-        auto seed = (static_cast<uint64_t>(rd()) << 32) ^
-                    static_cast<uint64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-        rng.seed(static_cast<uint32_t>(seed));
-    }
-    int nextInt(int lo, int hi) { // inclusive
-        std::uniform_int_distribution<int> dist(lo, hi);
-        return dist(rng);
-    }
-    template <typename T>
-    const T& choice(const std::vector<T>& vec) {
-        return vec[static_cast<size_t>(nextInt(0, static_cast<int>(vec.size()) - 1))];
-    }
-};
+// ==========================================
+// 建议的代码骨架（仅注释！不要直接复制到可执行代码区）：
+//
+// // 1) Alpha-Beta 路线（示意）
+// struct Move { int x, y; };
+//
+// static int inferTurn(const int b[15][15]) {
+//     int c1=0,c2=0; for(int i=0;i<15;++i) for(int j=0;j<15;++j){ if(b[i][j]==1)++c1; else if(b[i][j]==2)++c2; }
+//     return (c1==c2)?1:2; // 黑先
+// }
+//
+// static bool inBoard(int x,int y){ return x>=0 && x<15 && y>=0 && y<15; }
+//
+// static bool isWin(const int b[15][15], int x, int y) {
+//     // 从 (x,y) 做四方向计数，>=5 则胜；
+//     // 这块可参考你现有 GomokuLogic::checkWinFrom 的思路实现（复制一份到 AI 内部）。
+//     return false;
+// }
+//
+// static bool isDraw(const int b[15][15]){
+//     // 棋盘无空位即和棋
+//     return false;
+// }
+//
+// static void genMoves(const int b[15][15], std::vector<Move>& out){
+//     out.clear();
+//     // 邻域裁剪：只收集围绕已有子的 R 半径内的空位；若全空则给出中心点
+//     // 可按启发评分排序（例如：优先冲四>活三>眠三>...）
+// }
+//
+// static int evaluate(const int b[15][15]){
+//     // 评分函数（正分利于黑，负分利于白，或反之），
+//     // 使用活三/活四/冲四等模式评分，或参考你给的博客实现。
+//     return 0;
+// }
+//
+// static int alphabeta(int b[15][15], int depth, int alpha, int beta, int player,
+//                      int lastX, int lastY, uint64_t deadline) {
+//     // 终止条件：胜/和/深度=0/超时 -> 返回 evaluate(b)
+//     // 遍历着法（已排序）：递归 alphabeta，使用 alpha/beta 截断
+//     // 注意落子/回溯（b[x][y]=player -> 递归 -> 复原为 0）
+//     return 0;
+// }
+//
+// std::pair<int,int> AIBrainImplAlphaBeta::getBestMove(const int (*board)[15]) {
+//     // 复制到本地数组 int b[15][15]，推断 player=inferTurn(b)
+//     // 迭代加深：for d=1..MaxDepth，记录当前最优着法
+//     // 时间截止（deadline=now+timeLimitMs）
+//     // 返回最优着法
+// }
+//
+// // 2) MCTS 路线（示意）
+// struct Node { /* 盘面、子节点、访问计数、胜分、未试着法列表等 */ };
+// static std::pair<int,int> mctsSearch(const int b0[15][15], int playerToMove, uint64_t deadline){
+//     // 按 Selection/Expansion/Simulation/Backpropagation 四步实现
+//     // 关键：UCT 选择、邻域候选、随机对局（或半随机）、胜分回传
+//     // 返回从根走向访问次数最多的子节点对应的着法
+//     return {-1,-1};
+// }
+//
+// std::pair<int,int> AIBrainImplMCTS::getBestMove(const int (*board)[15]){
+//     // 复制 b，player=inferTurn(b)，deadline=now+timeLimitMs
+//     // return mctsSearch(b, player, deadline);
+// }
+// ==========================================
 
-constexpr int N = 15;
+// ===================== AlphaBeta 桩实现 =====================
+// 保持对外 API 不变（gamewindow.cpp 里会用到），你可以在 getBestMove 内按上述骨架逐步填充。
 
-inline bool inBoard(int x, int y) { return x >= 0 && x < N && y >= 0 && y < N; }
-
-int detectWinnerFrom(const int b[N][N], int x, int y) {
-    if (!inBoard(x,y)) return 0;
-    int player = b[x][y];
-    if (player == 0) return 0;
-    auto countDir = [&](int dx, int dy){
-        int c = 1;
-        for (int k=1; k<5; ++k){
-            int nx = x + k*dx, ny = y + k*dy;
-            if (inBoard(nx,ny) && b[nx][ny] == player) ++c; else break;
-        }
-        for (int k=1; k<5; ++k){
-            int nx = x - k*dx, ny = y - k*dy;
-            if (inBoard(nx,ny) && b[nx][ny] == player) ++c; else break;
-        }
-        return c;
-    };
-    if (countDir(1,0) >= 5) return player;
-    if (countDir(0,1) >= 5) return player;
-    if (countDir(1,1) >= 5) return player;
-    if (countDir(1,-1) >= 5) return player;
-    return 0;
-}
-
-bool isFull(const int b[N][N]) {
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j) if (b[i][j]==0) return false;
-    return true;
-}
-
-int inferTurn(const int b[N][N]) {
-    int cnt1=0,cnt2=0;
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j){
-        if (b[i][j]==1) ++cnt1; else if (b[i][j]==2) ++cnt2;
-    }
-    // 黑先：棋子数相同轮到黑(1)，否则白(2)
-    return (cnt1==cnt2)?1:2;
-}
-
-std::vector<std::pair<int,int>> allEmpty(const int b[N][N]){
-    std::vector<std::pair<int,int>> v;
-    v.reserve(N*N);
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j) if (b[i][j]==0) v.emplace_back(i,j);
-    return v;
-}
-
-std::vector<std::pair<int,int>> neighborhoodMoves(const int b[N][N], int radius){
-    int minx=N, miny=N, maxx=-1, maxy=-1;
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j) if (b[i][j]!=0){
-        minx = std::min(minx, i); maxx = std::max(maxx, i);
-        miny = std::min(miny, j); maxy = std::max(maxy, j);
-    }
-    // 空棋盘
-    if (maxx==-1) {
-        return { {N/2, N/2} };
-    }
-    minx = std::max(0, minx - radius);
-    maxx = std::min(N-1, maxx + radius);
-    miny = std::max(0, miny - radius);
-    maxy = std::min(N-1, maxy + radius);
-    std::vector<std::pair<int,int>> v;
-    v.reserve((maxx-minx+1)*(maxy-miny+1));
-    for (int i=minx;i<=maxx;++i) for (int j=miny;j<=maxy;++j) if (b[i][j]==0) v.emplace_back(i,j);
-    // 兜底：若区域里没有空位（几乎不可能），返回全局空位
-    if (v.empty()) return allEmpty(b);
-    return v;
-}
-
-struct Node {
-    int board[N][N]{};
-    int lastX=-1, lastY=-1;           // 导致此状态的最后一步
-    int playerToMove=1;               // 轮到谁走：1 黑，2 白
-
-    Node* parent=nullptr;
-    std::vector<std::unique_ptr<Node>> children;
-    std::vector<std::pair<int,int>> untried;
-
-    int visits=0;
-    double wins=0.0;                  // 从根玩家视角的胜分(胜=1, 和=0.5, 负=0)
-
-    bool terminal=false;              // 是否终局
-    int winner=0;                     // 0=未分或和棋；1=黑；2=白
-};
-
-void applyMove(int b[N][N], int x, int y, int player){ b[x][y] = player; }
-
-int nextPlayer(int p){ return p==1?2:1; }
-
-// UCT 选择
-Node* selectChildUCT(Node* node, double c){
-    Node* best=nullptr;
-    double bestScore=-std::numeric_limits<double>::infinity();
-    for (auto& chPtr : node->children){
-        Node* ch = chPtr.get();
-        if (ch->visits==0) return ch; // 若有未访问子节点，直接返回（加速早期探索）
-        double exploit = ch->wins / ch->visits;
-        double explore = c * std::sqrt(std::log(std::max(1, node->visits)) / ch->visits);
-        double score = exploit + explore;
-        if (score > bestScore){ bestScore = score; best = ch; }
-    }
-    return best;
-}
-
-// 随机对局（默认在邻域内随机）
-int randomPlayout(int board[N][N], int lastX, int lastY, int playerToMove,
-                  bool useNeighborhood, int neighborhoodRadius, Rand& rnd,
-                  int maxPlayoutLen = N*N){
-    // 如果刚落子已胜
-    if (lastX!=-1){
-        int w = detectWinnerFrom(board, lastX, lastY);
-        if (w!=0) return w;
-    }
-    int steps=0;
-    while (true){
-        if (isFull(board)) return 0; // 和棋
-        // 候选点
-        std::vector<std::pair<int,int>> moves = useNeighborhood ? neighborhoodMoves(board, neighborhoodRadius)
-                                                                : allEmpty(board);
-        if (moves.empty()) return 0; // 和棋
-        auto mv = moves[static_cast<size_t>(rnd.nextInt(0, static_cast<int>(moves.size())-1))];
-        applyMove(board, mv.first, mv.second, playerToMove);
-        if (int w=detectWinnerFrom(board, mv.first, mv.second); w!=0) return w;
-        playerToMove = nextPlayer(playerToMove);
-        if (++steps >= maxPlayoutLen) return 0; // 防御极端情况
-    }
-}
-
-} // namespace
-
-// ===================== MCTSBrain 实现 =====================
-
-MCTSBrain::MCTSBrain(int timeLimitMs,
+AlphaBeta::AlphaBeta(int timeLimitMs,
                      int maxIterations,
                      double explorationC,
                      bool useNeighborhood,
                      int neighborhoodRadius)
-    : timeLimitMs_(timeLimitMs), maxIterations_(maxIterations), c_(explorationC),
-      useNeighborhood_(useNeighborhood), neighborhoodRadius_(neighborhoodRadius) {}
+    : timeLimitMs_(timeLimitMs),
+      maxIterations_(maxIterations),
+      c_(explorationC),
+      useNeighborhood_(useNeighborhood),
+      neighborhoodRadius_(neighborhoodRadius) {}
 
-std::pair<int,int> MCTSBrain::getBestMove(const int (*boardIn)[15]) {
-    // root status
-    int rootBoard[N][N]{};
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j) rootBoard[i][j] = boardIn[i][j];
+std::pair<int,int> AlphaBeta::getBestMove(const int (*)[15]) {
 
-    int playerToMove = inferTurn(rootBoard);
 
-    bool anyStone=false; for (int i=0;i<N;++i) for (int j=0;j<N;++j) if (rootBoard[i][j]!=0) anyStone=true;
-    if (!anyStone) return {N/2, N/2}; // if it is empty, fuck it in the centre
-    // root Point of MCTS
-    auto root = std::make_unique<Node>();
-    for (int i=0;i<N;++i) for (int j=0;j<N;++j) root->board[i][j] = rootBoard[i][j];
-    root->playerToMove = playerToMove;
-    root->untried = useNeighborhood_ ? neighborhoodMoves(root->board, neighborhoodRadius_)
-                                     : allEmpty(root->board);
-    // 若无可落子
-    if (root->untried.empty()) return {-1,-1};
+    // ============ 从这里开始写起 ============
+    // 你可以：
+    // 1) 先做一个“最简单”的可运行版本：
+    //    - 若棋盘全空：返回中心点 (7,7)
+    //    - 否则：扫描所有空位，返回第一个满足某个简单规则的点
+    // 2) 再按你选择的路线替换为真正的 MCTS 或 Alpha-Beta。
+    //
+    // 提示：为了不影响 UI，这里先返回 {-1,-1}，窗口层会做兜底（寻找第一个空位），
+    // 等你写好算法再改为真实坐标即可。
 
-    Rand rnd;
+    // 示例（仅注释，不启用）：
+    // {
+    //     int temp[15][15] = {0};
+    //     // 把传入的 board 拷贝到 temp，统计是否全空，并可推断当前玩家
+    //     // bool any=false; for i,j: if (board[i][j]!=0) { any=true; temp[i][j]=board[i][j]; }
+    //     // if (!any) return {7,7};
+    //     // 否则：遍历 temp 为 0 的格子，挑一个作为返回（或调用你的搜索）
+    // }
 
-    const auto deadline = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(std::max(1, timeLimitMs_));
-    int iterations = 0;
-
-    // 预先确定根玩家，以该玩家角度累计胜分
-    int rootPlayer = playerToMove;
-
-    while (iterations < maxIterations_ && std::chrono::high_resolution_clock::now() < deadline) {
-        ++iterations;
-        Node* node = root.get();
-
-        // 1) Selection：沿 UCT 直到遇到可扩展或终局
-        while (node->untried.empty() && !node->children.empty() && !node->terminal) {
-            node = selectChildUCT(node, c_);
-        }
-
-        // 2) Expansion：从未尝试的动作里任选一个扩展
-        if (!node->terminal && !node->untried.empty()) {
-            // 随机挑一个未试动作
-            int idx = rnd.nextInt(0, static_cast<int>(node->untried.size())-1);
-            auto mv = node->untried[static_cast<size_t>(idx)];
-            std::swap(node->untried[static_cast<size_t>(idx)], node->untried.back());
-            node->untried.pop_back();
-
-            auto child = std::make_unique<Node>();
-            // 复制父盘面并落子
-            for (int i=0;i<N;++i) for (int j=0;j<N;++j) child->board[i][j] = node->board[i][j];
-            applyMove(child->board, mv.first, mv.second, node->playerToMove);
-            child->lastX = mv.first; child->lastY = mv.second;
-            child->playerToMove = nextPlayer(node->playerToMove);
-            child->parent = node;
-            // 终局判定
-            int w = detectWinnerFrom(child->board, mv.first, mv.second);
-            child->winner = w;
-            child->terminal = (w!=0) || isFull(child->board);
-            // 候选动作
-            if (!child->terminal){
-                child->untried = useNeighborhood_ ? neighborhoodMoves(child->board, neighborhoodRadius_) : allEmpty(child->board);
-            }
-            node->children.emplace_back(std::move(child));
-            node = node->children.back().get();
-        }
-
-        // 3) Simulation：从当前节点随机对局到终局
-        int simBoard[N][N];
-        for (int i=0;i<N;++i) for (int j=0;j<N;++j) simBoard[i][j] = node->board[i][j];
-        int winner;
-        if (node->terminal) {
-            winner = node->winner; // 已经是终局
-        } else {
-            winner = randomPlayout(simBoard, node->lastX, node->lastY, node->playerToMove,
-                                   useNeighborhood_, neighborhoodRadius_, rnd);
-        }
-
-        // 4) Backpropagate：从当前节点回溯到根，累计访问和胜分
-        double score;
-        if (winner == 0) score = 0.5;           // 和棋
-        else if (winner == rootPlayer) score = 1.0; // 根玩家胜
-        else score = 0.0;                       // 根玩家负
-
-        while (node != nullptr) {
-            node->visits += 1;
-            node->wins += score;
-            node = node->parent;
-        }
-    }
-
-    // 从根的子节点中选择访问次数最多的落子（更稳定），如果访问数相同选胜率高
-    Node* best = nullptr;
-    int bestVisits = -1;
-    double bestWinRate = -1.0;
-    for (auto& chPtr : root->children){
-        Node* ch = chPtr.get();
-        if (ch->visits > bestVisits || (ch->visits == bestVisits && ch->visits>0 && (ch->wins/ch->visits) > bestWinRate)){
-            best = ch;
-            bestVisits = ch->visits;
-            bestWinRate = (ch->visits>0)?(ch->wins/ch->visits):0.0;
-        }
-    }
-
-    if (!best){
-        // 兜底：根没有展开（极少出现），随机返回一个可行点
-        auto cands = useNeighborhood_ ? neighborhoodMoves(root->board, neighborhoodRadius_) : allEmpty(root->board);
-        if (cands.empty()) return {-1,-1};
-        return cands.front();
-    }
-
-    return { best->lastX, best->lastY };
+    return {-1, -1};
 }
