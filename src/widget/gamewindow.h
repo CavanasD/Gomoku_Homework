@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <memory>
+#include <QString>            // 为 formatMMSS 返回值提供声明
 #include "gomokuLogic.h"
 #include "aibrain.h"  // 直接包含，避免不完整类型问题
 
@@ -43,6 +44,14 @@ private:
     // 剪枝算法（如 Alpha-Beta / MCTS 的邻域裁剪）应实现于 AIBrain 的具体类中
     void triggerAIMove();
 
+    // ============ 计时器相关（倒计时 mm:ss） ============
+    void initClocks();                 // 初始化时钟显示与 QTimer
+    void startClock();                 // 根据当前对局状态开始倒计时
+    void stopClock();                  // 停止倒计时
+    void onClockTick();                // 每秒回调，给“当前行棋方”减 1 秒
+    void refreshClockDisplays() const; // 将秒数格式化为 mm:ss 显示到 QLCDNumber
+    static QString formatMMSS(int seconds); // 300 -> "05:00"
+
     Ui::gameWindow *ui;              // UI 由 Qt Designer 生成
 
     GomokuLogic logic;               // 逻辑层（Model）：维护棋盘/当前玩家/胜负
@@ -56,6 +65,12 @@ private:
 
     // AI 引擎：通过统一接口解耦具体算法（MCTS、Alpha-Beta 等）
     std::unique_ptr<AIBrain> aiBrain;
+
+    // ============ 时钟数据 ============
+    class QTimer* turnTimer{nullptr}; // 每秒触发一次
+    int initialSeconds{300};          // 初始时间（总秒数），UI 中原来显示 300
+    int whiteRemaining{300};          // 白方剩余秒数
+    int blackRemaining{300};          // 黑方剩余秒数
 };
 
 #endif //MY_APP_GAMEWINDOW_H

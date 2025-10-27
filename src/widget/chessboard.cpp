@@ -142,7 +142,6 @@ void ChessBoard::mouseMoveEvent(QMouseEvent *event) {
     const int boardSize = gridSize * 14;
     const int originX = (width()  - boardSize) / 2;
     const int originY = (height() - boardSize) / 2;
-
     const int x = static_cast<int>((event->position().y() - originY + gridSize / 2) / gridSize);
     const int y = static_cast<int>((event->position().x() - originX + gridSize / 2) / gridSize);
 

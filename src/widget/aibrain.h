@@ -52,4 +52,28 @@ private:
     int neighborhoodRadius_;
 };
 
+// 为了兼容现有窗口代码，这里保留 MCTSBrain 的声明作为桩（stub）。
+// 你可以在 aibrain.cpp 中让它复用 AlphaBeta 的实现或单独实现。
+class MCTSBrain : public AIBrain {
+public:
+    explicit MCTSBrain(int timeLimitMs = 200,
+                       int maxIterations = 10000,
+                       double explorationC = 1.41421356237,
+                       bool useNeighborhood = true,
+                       int neighborhoodRadius = 2)
+        : timeLimitMs_(timeLimitMs), maxIterations_(maxIterations), c_(explorationC),
+          useNeighborhood_(useNeighborhood), neighborhoodRadius_(neighborhoodRadius) {}
+
+    ~MCTSBrain() override = default;
+
+    std::pair<int,int> getBestMove(const int (*board)[15]) override;
+
+private:
+    int timeLimitMs_;
+    int maxIterations_;
+    double c_;
+    bool useNeighborhood_;
+    int neighborhoodRadius_;
+};
+
 #endif // MY_APP_AIBRAIN_H

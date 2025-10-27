@@ -22,6 +22,9 @@ gameWindow::gameWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // 初始化倒计时显示与计时器
+    initClocks();
+
     // 绑定按钮事件：开始/重置
     connect(ui->startBut, &QPushButton::clicked, this, &gameWindow::on_startBut_clicked);
     connect(ui->resetBut, &QPushButton::clicked, this, &gameWindow::on_resetBut_clicked);
@@ -52,6 +55,9 @@ gameWindow::gameWindow(bool vsAI_, GomokuLogic::Player aiSide_, QWidget *parent)
 {
     ui->setupUi(this);
 
+    // 初始化倒计时显示与计时器
+    initClocks();
+
     connect(ui->startBut, &QPushButton::clicked, this, &gameWindow::on_startBut_clicked);
     connect(ui->resetBut, &QPushButton::clicked, this, &gameWindow::on_resetBut_clicked);
 
@@ -73,7 +79,7 @@ gameWindow::gameWindow(bool vsAI_, GomokuLogic::Player aiSide_, QWidget *parent)
         // 可替换为不同策略类（如 AlphaBetaBrain），以实现不同剪枝：
         // - MCTS：邻域裁剪（只在已有棋子附近展开）、时间/迭代上限（提前截断）
         // - Alpha-Beta：着法排序 + alpha/beta 截断 + 置换表 + 迭代加深等
-        aiBrain = std::make_unique<AlphaBeta>(250, 12000, 1.2, true, 2);
+        aiBrain = std::make_unique<MCTSBrain>(250, 12000, 1.2, true, 2);
     }
 
     updateTurnLabel();
@@ -111,6 +117,7 @@ void gameWindow::on_startBut_clicked() {
         on_resetBut_clicked();   // 复位模型与视图
         ui->whoWin->setText("你能打败流萤酱吗");
         updateTurnLabel();
+        startClock();            // 开始倒计时
         // 人机开局：若当前轮到 AI，则异步触发（避免阻塞 UI 线程）
         if (vsAI && logic.currentPlayer() == aiSide) {
             aiThinking = true;
@@ -127,12 +134,21 @@ void gameWindow::on_resetBut_clicked() {
     aiThinking = false;
     updateTurnLabel();
     ui->whoWin->setText("你能打败流萤酱吗");
+
+    // 重置双方剩余时间并刷新显示
+    whiteRemaining = initialSeconds;
+    blackRemaining = initialSeconds;
+    refreshClockDisplays();
+
     // 若重置后先手为 AI，继续触发 AI
     if (gameActive && vsAI && logic.currentPlayer() == aiSide) {
         aiThinking = true;
         updateTurnLabel();
         QTimer::singleShot(0, this, &gameWindow::triggerAIMove);
     }
+
+    // 重置后若处于对局中，重新启动计时
+    if (gameActive) startClock(); else stopClock();
 }
 
 // ==================== Main Logics =====================
@@ -158,16 +174,19 @@ void gameWindow::handleBoardClick(int x, int y) {
             gameActive = false;
             ui->whoWin->setText("黑棋胜利！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::WhiteWin:
             gameActive = false;
             ui->whoWin->setText("白棋胜利！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::Draw:
             gameActive = false;
             ui->whoWin->setText("平局！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::InProgress:
             // 若轮到 AI，则异步触发 AI 思考
@@ -178,6 +197,7 @@ void gameWindow::handleBoardClick(int x, int y) {
             } else {
                 updateTurnLabel();
             }
+            // 不需要切换计时器，onClockTick 会按 currentPlayer 动态扣时
             break;
     }
 }
@@ -223,19 +243,96 @@ void gameWindow::triggerAIMove() {
             gameActive = false;
             ui->whoWin->setText("黑棋胜利！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::WhiteWin:
             gameActive = false;
             ui->whoWin->setText("白棋胜利！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::Draw:
             gameActive = false;
             ui->whoWin->setText("平局！");
             ui->whoTurn->setText("游戏结束");
+            stopClock();
             break;
         case GomokuLogic::InProgress:
             updateTurnLabel();
+            // 不需要切换计时器，onClockTick 会按 currentPlayer 动态扣时
             break;
     }
+}
+
+// ==================== 倒计时实现 =====================
+void gameWindow::initClocks() {
+    // QLCDNumber 显示 mm:ss（5 位）
+    ui->whiteTimer->setDigitCount(5);
+    ui->blackTimer->setDigitCount(5);
+    // 初始显示
+    whiteRemaining = initialSeconds;
+    blackRemaining = initialSeconds;
+    refreshClockDisplays();
+
+    // 每秒触发一次
+    if (!turnTimer) {
+        turnTimer = new QTimer(this);
+        turnTimer->setInterval(1000);
+        connect(turnTimer, &QTimer::timeout, this, &gameWindow::onClockTick);
+    }
+}
+
+void gameWindow::startClock() {
+    if (!turnTimer) return;
+    if (logic.state() != GomokuLogic::InProgress) return;
+    if (!turnTimer->isActive()) turnTimer->start();
+}
+
+void gameWindow::stopClock() {
+    if (turnTimer && turnTimer->isActive()) turnTimer->stop();
+}
+
+void gameWindow::onClockTick() {
+    if (!gameActive || logic.state() != GomokuLogic::InProgress) {
+        stopClock();
+        return;
+    }
+    // 按当前执棋方扣时
+    if (logic.currentPlayer() == GomokuLogic::Black) {
+        if (blackRemaining > 0) --blackRemaining;
+        if (blackRemaining <= 0) {
+            blackRemaining = 0;
+            refreshClockDisplays();
+            // 简单超时处理：停止对局并提示（不变更逻辑层 state）
+            gameActive = false;
+            ui->whoWin->setText("黑方超时！");
+            ui->whoTurn->setText("游戏结束");
+            stopClock();
+            return;
+        }
+    } else {
+        if (whiteRemaining > 0) --whiteRemaining;
+        if (whiteRemaining <= 0) {
+            whiteRemaining = 0;
+            refreshClockDisplays();
+            gameActive = false;
+            ui->whoWin->setText("白方超时！");
+            ui->whoTurn->setText("游戏结束");
+            stopClock();
+            return;
+        }
+    }
+    refreshClockDisplays();
+}
+
+void gameWindow::refreshClockDisplays() const {
+    ui->whiteTimer->display(formatMMSS(whiteRemaining));
+    ui->blackTimer->display(formatMMSS(blackRemaining));
+}
+
+QString gameWindow::formatMMSS(int seconds) {
+    if (seconds < 0) seconds = 0;
+    const int mm = seconds / 60;
+    const int ss = seconds % 60;
+    return QString("%1:%2").arg(mm, 2, 10, QChar('0')).arg(ss, 2, 10, QChar('0'));
 }

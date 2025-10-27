@@ -116,6 +116,18 @@
 
 // ===================== AlphaBeta 桩实现 =====================
 // 保持对外 API 不变（gamewindow.cpp 里会用到），你可以在 getBestMove 内按上述骨架逐步填充。
+struct Move {
+    int x, y;
+};
+
+static bool inBoard(int x,int y){ return x>=0 && x<15 && y>=0 && y<15; }//判断棋子是否在合法位置
+
+
+
+static int inferTurn(const int b[15][15]) {
+    int c1=0,c2=0; for(int i=0;i<15;++i) for(int j=0;j<15;++j){ if(b[i][j]==1)++c1; else if(b[i][j]==2)++c2; }
+    return (c1==c2)?1:2; // 黑先
+}
 
 AlphaBeta::AlphaBeta(int timeLimitMs,
                      int maxIterations,
@@ -128,8 +140,28 @@ AlphaBeta::AlphaBeta(int timeLimitMs,
       useNeighborhood_(useNeighborhood),
       neighborhoodRadius_(neighborhoodRadius) {}
 
-std::pair<int,int> AlphaBeta::getBestMove(const int (*)[15]) {
+std::pair<int,int> AlphaBeta::getBestMove(const int (*board)[15]) {
+    int temp[15][15] = {0};
+    bool any=false; // 标志：棋盘里是否存在任意一个非空格（用于判断是否为空棋盘）
+    for (int i = 0; i < 15 ;++i) {
+        for (int j = 0; j < 15; ++j) {
+            if (board[i][j] != 0) {
+                any = true;
+                temp[i][j] = board[i][j];
+            }
+        }
+    }
+    if (!any) {
+        return {7,7};
+    }
 
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 15; j++) {
+            if (temp[i][j] != 0) {
+                return {i,j};
+            }
+        }
+    }
 
     // ============ 从这里开始写起 ============
     // 你可以：
@@ -143,12 +175,23 @@ std::pair<int,int> AlphaBeta::getBestMove(const int (*)[15]) {
 
     // 示例（仅注释，不启用）：
     // {
-    //     int temp[15][15] = {0};
-    //     // 把传入的 board 拷贝到 temp，统计是否全空，并可推断当前玩家
-    //     // bool any=false; for i,j: if (board[i][j]!=0) { any=true; temp[i][j]=board[i][j]; }
-    //     // if (!any) return {7,7};
-    //     // 否则：遍历 temp 为 0 的格子，挑一个作为返回（或调用你的搜索）
+    //     // 遍历 temp 为 0 的格子，挑一个返回（或调用你的搜索）
+    //     // for (int i = 0; i < 15; ++i) {
+    //     //     for (int j = 0; j < 15; ++j) {
+    //     //         if (temp[i][j] == 0) return {i, j};
+    //     //     }
+    //     // }
     // }
 
+    return {-1, -1};
+}
+
+// ===================== MCTSBrain 桩实现 =====================
+std::pair<int,int> MCTSBrain::getBestMove(const int (* /*board*/)[15]) {
+    // 作为兼容窗口的占位实现，暂时返回 {-1,-1}，
+    // 上层窗口会在无解情况下做兜底（寻找第一个空位）。
+    // 你也可以在此直接 new 一个 AlphaBeta 并复用其逻辑：
+    // AlphaBeta ab(timeLimitMs_, maxIterations_, c_, useNeighborhood_, neighborhoodRadius_);
+    // return ab.getBestMove(board);
     return {-1, -1};
 }

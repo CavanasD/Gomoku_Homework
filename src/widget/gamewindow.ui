@@ -119,6 +119,97 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>270</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪黑神话</family>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>倒计时</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>410</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>汉仪黑神话</family>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>倒计时</string>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="whiteTimer">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>470</y>
+     <width>151</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="midLineWidth">
+    <number>1</number>
+   </property>
+   <property name="digitCount">
+    <number>3</number>
+   </property>
+   <property name="mode">
+    <enum>QLCDNumber::Mode::Dec</enum>
+   </property>
+   <property name="value" stdset="0">
+    <double>300.000000000000000</double>
+   </property>
+   <property name="intValue" stdset="0">
+    <number>300</number>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="blackTimer">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>340</y>
+     <width>151</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="midLineWidth">
+    <number>1</number>
+   </property>
+   <property name="digitCount">
+    <number>3</number>
+   </property>
+   <property name="mode">
+    <enum>QLCDNumber::Mode::Dec</enum>
+   </property>
+   <property name="segmentStyle">
+    <enum>QLCDNumber::SegmentStyle::Filled</enum>
+   </property>
+   <property name="value" stdset="0">
+    <double>300.000000000000000</double>
+   </property>
+   <property name="intValue" stdset="0">
+    <number>300</number>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

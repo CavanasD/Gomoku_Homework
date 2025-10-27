@@ -12,6 +12,14 @@
             </PerProfileState>
           </value>
         </entry>
+        <entry key="Debug-event-trace">
+          <value>
+            <PerProfileState>
+              <option name="myQmlPath" value="D:/Qt/6.9.3/mingw_64/qml" />
+              <option name="myQtBinPath" value="D:/Qt/6.9.3/mingw_64/bin" />
+            </PerProfileState>
+          </value>
+        </entry>
         <entry key="Release">
           <value>
             <PerProfileState>
