@@ -7,10 +7,6 @@
 
 #include <utility>
 
-// 算法层接口（Strategy）：
-// - 窗口层/逻辑层只依赖 AIBrain 抽象，不关心具体算法（MCTS/Alpha-Beta 等）
-// - 棋盘约定：15x15，0=空，1=黑，2=白
-// - 返回值：(x,y) 为行列坐标；若无合法着法返回 {-1,-1}
 class AIBrain {
 public:
     virtual ~AIBrain() = default;
@@ -22,10 +18,12 @@ public:
     virtual std::pair<int,int> getBestMove(const int (*board)[15]) = 0;
 };
 
-// MCTS 实现：
-// - 剪枝思路：useNeighborhood=true 时，仅在已有棋子“邻域半径”范围内生成候选着法（启发式剪枝）
-// - 时间/迭代上限：通过 timeLimitMs 与 maxIterations 控制搜索规模（提前截断）
-// - explorationC：UCT 参数，平衡探索/利用
+// =========================================================
+//【AlphaBeta 类用途说明】
+// - 这是默认“占位”实现，当前仅提供空壳接口与参数保存；
+// - 真正的 Alpha-Beta 搜索逻辑请在 aibrain.cpp 的 AlphaBeta::getBestMove 内部按注释骨架补齐；
+// - 可在 cpp 中实现：inferTurn / genMoves / isWin / isDraw / evaluate / alphabeta / iterative deepening 等“静态帮助函数”。
+// =========================================================
 class AlphaBeta : public AIBrain {
 public:
     // 参数说明：
@@ -52,28 +50,5 @@ private:
     int neighborhoodRadius_;
 };
 
-// 为了兼容现有窗口代码，这里保留 MCTSBrain 的声明作为桩（stub）。
-// 你可以在 aibrain.cpp 中让它复用 AlphaBeta 的实现或单独实现。
-class MCTSBrain : public AIBrain {
-public:
-    explicit MCTSBrain(int timeLimitMs = 200,
-                       int maxIterations = 10000,
-                       double explorationC = 1.41421356237,
-                       bool useNeighborhood = true,
-                       int neighborhoodRadius = 2)
-        : timeLimitMs_(timeLimitMs), maxIterations_(maxIterations), c_(explorationC),
-          useNeighborhood_(useNeighborhood), neighborhoodRadius_(neighborhoodRadius) {}
-
-    ~MCTSBrain() override = default;
-
-    std::pair<int,int> getBestMove(const int (*board)[15]) override;
-
-private:
-    int timeLimitMs_;
-    int maxIterations_;
-    double c_;
-    bool useNeighborhood_;
-    int neighborhoodRadius_;
-};
 
 #endif // MY_APP_AIBRAIN_H

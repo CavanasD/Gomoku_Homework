@@ -97,30 +97,25 @@ void ChessBoard::paintEvent(QPaintEvent *event) {
         }
     }
 
-    // 悬停高亮（红色角标）
+    // fucking red fucks
     if (moveX >= 0 && moveY >= 0) {
         QPen pen(Qt::red);
         pen.setWidth(1);
         painter.setPen(pen);
         const int centerX = originX + moveY * gridSize;
         const int centerY = originY + moveX * gridSize;
-        const int halfSize = pieceR;    // 与棋子半径一致更直观
+        const int halfSize = pieceR;
         const int cornerLen = 8;
-        // TL
         painter.drawLine(centerX - halfSize, centerY - halfSize, centerX - halfSize + cornerLen, centerY - halfSize);
         painter.drawLine(centerX - halfSize, centerY - halfSize, centerX - halfSize, centerY - halfSize + cornerLen);
-        // TR
         painter.drawLine(centerX + halfSize, centerY - halfSize, centerX + halfSize - cornerLen, centerY - halfSize);
         painter.drawLine(centerX + halfSize, centerY - halfSize, centerX + halfSize, centerY - halfSize + cornerLen);
-        // BL
         painter.drawLine(centerX - halfSize, centerY + halfSize, centerX - halfSize + cornerLen, centerY + halfSize);
         painter.drawLine(centerX - halfSize, centerY + halfSize, centerX - halfSize, centerY + halfSize - cornerLen);
-        // BR
         painter.drawLine(centerX + halfSize, centerY + halfSize, centerX + halfSize - cornerLen, centerY + halfSize);
         painter.drawLine(centerX + halfSize, centerY + halfSize, centerX + halfSize, centerY + halfSize - cornerLen);
     }
-
-    // 最后一步标记
+    // fucking last
     if (lastMoveX != -1 && lastMoveY != -1) {
         QPen pen(Qt::red);
         pen.setWidth(2);
@@ -132,8 +127,7 @@ void ChessBoard::paintEvent(QPaintEvent *event) {
     }
 }
 
-void ChessBoard::mouseMoveEvent(QMouseEvent *event) {
-    // 与绘制一致的坐标换算，避免因边距/格距变化导致定位偏差
+void ChessBoard::mouseMoveEvent(QMouseEvent *event) { //cnmlgb forget to fuck!
     const int pieceR = 18;
     const int padding = pieceR + 2;
     const int availW = width()  - 2 * padding;

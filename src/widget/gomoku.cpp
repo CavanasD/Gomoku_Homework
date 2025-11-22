@@ -17,8 +17,8 @@ Gomoku::~Gomoku() {
 
 void Gomoku::on_vsAIBut_clicked() {
     this->close();
-    // 人机模式：默认让 AI 执白（玩家执黑先手）
-    auto *gw = new gameWindow(true, GomokuLogic::White);
+    // 人机模式：AI 执黑（机器黑棋），玩家执白
+    auto *gw = new gameWindow(true, GomokuLogic::Black);
     gw->setAttribute(Qt::WA_DeleteOnClose);
     gw->show();
 }

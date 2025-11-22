@@ -75,11 +75,14 @@ gameWindow::gameWindow(bool vsAI_, GomokuLogic::Player aiSide_, QWidget *parent)
     ui->chessBoardWidget->resetBoard();
 
     if (vsAI) {
-        // 【AI 引擎实例化处】
-        // 可替换为不同策略类（如 AlphaBetaBrain），以实现不同剪枝：
-        // - MCTS：邻域裁剪（只在已有棋子附近展开）、时间/迭代上限（提前截断）
-        // - Alpha-Beta：着法排序 + alpha/beta 截断 + 置换表 + 迭代加深等
-        aiBrain = std::make_unique<MCTSBrain>(250, 12000, 1.2, true, 2);
+        // 【AI 引擎实例化处】改为 AlphaBeta 强化搜索
+        aiBrain = std::make_unique<AlphaBeta>(
+            300,   // timeLimitMs 每步思考时长
+            20000, // maxIterations（占位，不在 AlphaBeta 中直接使用）
+            1.2,   // explorationC（占位）
+            true,  // useNeighborhood 邻域裁剪
+            2      // neighborhoodRadius 裁剪半径
+        );
     }
 
     updateTurnLabel();
@@ -95,7 +98,7 @@ void gameWindow::updateTurnLabel() const {
         return;
     }
     if (vsAI && aiThinking) {
-        ui->whoTurn->setText("AI思考中…");
+        ui->whoTurn->setText("流萤酱正在思考喵~…");
         return;
     }
     // 【当前执棋方获取】从逻辑层读取，不由 UI 自己维护
@@ -157,8 +160,10 @@ void gameWindow::handleBoardClick(int x, int y) {
 
     // 人机模式：若轮到 AI 或 AI 正在思考，屏蔽玩家点击
     if (vsAI && (aiThinking || logic.currentPlayer() == aiSide)) {
+        qDebug() << "[CLICK BLOCKED] aiThinking=" << aiThinking << " currentPlayer=" << (logic.currentPlayer()==GomokuLogic::Black?"Black":"White") << " aiSide=" << (aiSide==GomokuLogic::Black?"Black":"White");
         return;
     }
+    qDebug() << "[USER CLICK] attempt" << x << y << " currentPlayer=" << (logic.currentPlayer()==GomokuLogic::Black?"Black":"White");
 
     // 【逻辑层落子接口】校验合法性/切换执棋方/判胜负均在 placePiece 内完成
     if (!logic.placePiece(x, y)) {
@@ -210,28 +215,33 @@ void gameWindow::triggerAIMove() {
 
     // UI 提示：AI 思考中（注意：当前实现仍在主线程计算，重度计算建议放到 QThread/QtConcurrent）
     aiThinking = true;
-    ui->whoTurn->setText("AI思考中…");
+    ui->whoTurn->setText("流萤正在思考喵…");
     ui->whoTurn->repaint();
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
     // 【AI 调用入口 & 剪枝接入点】
-    // - 当前棋盘：logic.getBoard()（0 空 / 1 黑 / 2 白）
-    // - 当前执棋方：logic.currentPlayer()（此处已等于 aiSide）
-    // - 剪枝实现位置：AIBrain 子类内部（例如 MCTS 的邻域裁剪，Alpha-Beta 的 alpha/beta 截断）
     auto [mx, my] = aiBrain->getBestMove(logic.getBoard());
+    qDebug() << "[AI MOVE RAW] returned" << mx << my;
 
-    // 兜底：若 AI 未返回有效点，线性找一个空位
-    if (mx < 0 || my < 0 || mx >= 15 || my >= 15 || logic.getBoard()[mx][my] != 0) {
-        for (int i=0;i<15 && (mx<0||my<0);++i)
-            for (int j=0;j<15 && (mx<0||my<0);++j)
-                if (logic.getBoard()[i][j]==0) { mx=i; my=j; }
+    // 新策略：若 AI 返回 {-1,-1} 视为“暂无落子”直接结束，不做兜底填左上角
+    bool haveMove = (mx >= 0 && my >= 0 && mx < 15 && my < 15);
+    if (haveMove && logic.getBoard()[mx][my] != 0) {
+        // 只有在 AI 给出合法范围但该位置非空时，才做线性兜底寻找第一个空位
+        bool found=false;
+        for (int i=0;i<15 && !found;++i)
+            for (int j=0;j<15 && !found;++j)
+                if (logic.getBoard()[i][j]==0) { mx=i; my=j; found=true; }
+        haveMove = found; // 若没找到空位则视为无着法
     }
 
-    if (mx>=0 && my>=0) {
-        // 再次通过逻辑层接口实际落子（保证所有状态推进在 Model 内部）
-        if (logic.placePiece(mx, my)) {
+    if (haveMove) {
+        bool placed = logic.placePiece(mx, my);
+        qDebug() << "[AI PLACE]" << (placed?"success":"fail") << "at" << mx << my << " nextPlayer=" << (logic.currentPlayer()==GomokuLogic::Black?"Black":"White");
+        if (placed) {
             ui->chessBoardWidget->updateBoard(logic.getBoard(), logic.lastX(), logic.lastY());
         }
+    } else {
+        qDebug() << "[AI NO MOVE] AI chose to skip move";
     }
 
     // 思考结束
