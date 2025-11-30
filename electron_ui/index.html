@@ -1,83 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>N1n3Bird的五子棋</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: sans-serif;
-        }
-        h1 { margin-bottom: 10px; }
-        #status { color: #666; margin-bottom: 20px; font-weight: bold;}
-
-        /* 棋盘背景 */
-        #board {
-            width: 600px;
-            height: 600px;
-            background-color: #DEB887; /* 木纹色 */
-            position: relative;
-            border: 4px solid #5d4037;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
-        }
-
-        /* 棋盘线 */
-        #board::before {
-            content: '';
-            position: absolute;
-            top: 20px; left: 20px; right: 20px; bottom: 20px;
-            background-image:
-                    linear-gradient(#000 1px, transparent 1px),
-                    linear-gradient(90deg, #000 1px, transparent 1px);
-            background-size: 40px 40px; /* 格子大小 */
-            z-index: 0;
-        }
-
-        /* 棋子格子区域 */
-        .cell {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            z-index: 1; /* 在线上面 */
-            border-radius: 50%;
-            cursor: pointer;
-            transform: scale(0.8); /* 棋子稍微比格子小一点 */
-            transition: transform 0.1s;
-        }
-        .cell:hover {
-            background-color: rgba(0,0,0,0.1); /* 鼠标悬停提示 */
-        }
-
-        /* 黑白子样式 */
-        .black {
-            background: radial-gradient(circle at 30% 30%, #666, #000);
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-        }
-        .white {
-            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-        }
-
-        /* 最后一手高亮 */
-        .last-move::after {
-            content: '';
-            display: block;
-            width: 10px; height: 10px;
-            background-color: red;
-            margin: 15px auto;
-        }
-    </style>
+    <title>Gomoku Pro</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>N1n3Bird的五子棋</h1>
-<h2>你能打败流萤酱吗？</h2>
-<div id="status">请执黑先行</div>
-<div id="board"></div>
-<button onclick="location.reload()" style="margin-top:20px; padding:10px 20px;">重新开始</button>
+<div id="app-wrapper">
 
+    <div id="toast-msg">
+        <span class="toast-icon">✨</span>
+        <span id="toast-text">欢迎回来</span>
+    </div>
+
+    <div id="title-bar">
+        <div class="traffic-lights">
+            <div class="light close" id="btn-close"></div>
+            <div class="light minimize" id="btn-min"></div>
+            <div class="light maximize" id="btn-max"></div>
+        </div>
+        <div style="margin-left: 20px; font-size: 12px; color: var(--text-sub); letter-spacing: 1px;">N1n3Bird · 五子棋</div>
+    </div>
+
+    <div id="main-layout">
+        <div id="sidebar">
+            <div class="nav-items-container">
+                <div id="nav-highlight"></div>
+                <div class="nav-item active" onclick="switchPage('home', 0)" title="主页仪表盘"><div class="nav-icon"><img src="images/home.png" alt="home"></div></div>
+                <div class="nav-item" onclick="switchPage('game', 1)" title="开始对弈"><div class="nav-icon"><img src="images/game.png" alt="game"></div></div>
+                <div class="nav-item" onclick="switchPage('settings', 2)" title="个性化设置"><div class="nav-icon"><img src="images/settings.png" alt="settings"></div></div>
+                <div class="nav-item" onclick="switchPage('about', 3)" title="关于作者"><div class="nav-icon"><img src="images/about.png" alt="about"></div></div>
+            </div>
+        </div>
+
+        <div id="content-area">
+
+            <div id="page-home" class="page active">
+                <div style="margin-bottom: 30px;">
+                    <div class="big-text" id="greeting">Hi, N1n3Bird</div>
+                    <div class="sub-text">流萤酱已就绪，随时可以开始一局精彩对弈。</div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card firefly-card"><img src="images/firefly.png" class="firefly-img"></div>
+
+                    <div class="card wide system-card">
+                        <h3>系统状态</h3>
+                        <div class="system-layout">
+                            <div class="system-details">
+                                <div class="sys-item">
+                                    <div class="sys-label"><span>CPU (Real)</span><span id="val-cpu">0%</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-cpu" style="width:0%; background:var(--sys-cpu)"></div></div>
+                                </div>
+                                <div class="sys-item">
+                                    <div class="sys-label"><span>Memory</span><span id="val-mem">0%</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-mem" style="width:0%; background:var(--sys-mem)"></div></div>
+                                </div>
+                                <div class="sys-item">
+                                    <div class="sys-label"><span>GPU (Sim)</span><span id="val-gpu">0%</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-gpu" style="width:0%; background:var(--sys-gpu)"></div></div>
+                                </div>
+                            </div>
+                            <div class="circle-chart">
+                                <svg viewBox="0 0 100 100" style="width:100%; height:100%;">
+                                    <path class="circle-bg" d="M50,10 a40,40 0 0,1 0,80 a40,40 0 0,1 0,-80" />
+                                    <path class="circle-progress" id="sys-circle-path" d="M50,10 a40,40 0 0,1 0,80 a40,40 0 0,1 0,-80" stroke-dasharray="251" stroke-dashoffset="251" />
+                                </svg>
+                                <div class="circle-text">
+                                    <div class="circle-val" id="sys-total">0%</div>
+                                    <div class="circle-label">Sys Load</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card countdown-card">
+                        <h3 style="margin-bottom: 5px;">倒数日</h3>
+
+                        <div style="margin-top: 5px;">
+                            <div id="countdown-title" style="font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1.2;">
+                                --
+                            </div>
+
+                            <div id="countdown-date-label" style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px;">
+                                --
+                            </div>
+
+                            <div>
+                                <span class="big-text" style="color:var(--pastel-orange)" id="countdown-days">--</span>
+                                <span style="color:var(--text-sub)">天</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card time-card">
+                        <h3>当前时间</h3>
+                        <div class="big-text" id="clock-time">--:--</div>
+                        <div class="sub-text" id="clock-date">--</div>
+                    </div>
+                    <div class="card quote-card">
+                        <h3>每日鸡汤</h3>
+                        <div style="font-size: 14px; color: var(--text-sub); line-height: 1.5;" id="daily-quote">Loading...</div>
+                    </div>
+                    <div class="card stats-card">
+                        <h3>统计</h3>
+                        <div style="margin-top:10px;">
+                            <div class="sys-label" style="margin-bottom:5px;"><span>PVE Win Rate</span><span id="pve-rate">0%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" id="pve-bar" style="width:0%; background:var(--pastel-green)"></div></div>
+                            <div style="font-size:12px; color:var(--text-sub); margin-top:8px;" id="stat-text">读取中...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-game" class="page">
+                <div class="game-container">
+                    <div id="board-wrapper">
+                        <div id="grid">
+                            <div class="star-point p-3-3"></div><div class="star-point p-11-3"></div><div class="star-point p-7-7"></div><div class="star-point p-3-11"></div><div class="star-point p-11-11"></div>
+                        </div>
+                        <div id="pieces-layer"></div>
+                        <div id="blocker"></div>
+                    </div>
+                    <div class="game-sidebar">
+                        <div class="game-info-card">
+                            <div style="font-size:12px; color:var(--text-sub); margin-bottom:5px;">GAME TIME</div>
+                            <div class="timer-big" id="game-timer">08:00</div>
+                            <div class="turn-badge"><div class="turn-dot" id="turn-dot"></div><span id="turn-text">黑方回合</span></div>
+                            <div id="winner-text" style="height:20px; margin-top:10px; font-weight:bold; color:#ff7675;"></div>
+                        </div>
+                        <div class="game-info-card" style="text-align:left;">
+                            <div style="font-size:12px; color:var(--text-sub); margin-bottom:15px;">GAME MODE</div>
+                            <div class="mode-switch-group">
+                                <div id="mode-slider"></div>
+                                <div class="mode-item active" id="mode-pve" onclick="switchMode('PVE')">流萤酱 (AI)</div>
+                                <div class="mode-item" id="mode-pvp" onclick="switchMode('PVP')">人人对战</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="resetGame()">开始新对局</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-settings" class="page">
+                <h2 class="big-text">Settings</h2>
+                <div style="max-width: 500px; margin-top: 30px;">
+                    <div class="card">
+                        <h3>Theme</h3>
+                        <div class="theme-toggle-btn" onclick="toggleTheme()">
+                            <div style="display:flex; align-items:center;">
+                                <div class="theme-icon" id="theme-icon">☀️</div>
+                                <div><div style="font-weight:bold; font-size:16px; color:var(--text-main)" id="theme-label">Light</div></div>
+                            </div>
+                            <div>></div>
+                        </div>
+                        <div style="margin-top: 15px; display:flex; align-items:center;">
+                            <input type="checkbox" id="follow-system" onchange="toggleFollowSystem(this.checked)" style="margin-right:10px;">
+                            <label for="follow-system" style="color:var(--text-main); font-size:14px;">跟随系统</label>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top: 20px;">
+                        <h3>Countdown Event</h3>
+                        <div class="countdown-inputs">
+                            <div class="input-row">
+                                <div class="input-label">事件名称</div>
+                                <input type="text" class="custom-input" id="event-name-input">
+                            </div>
+                            <div class="input-row">
+                                <div class="input-label">目标日期</div>
+                                <input type="date" class="custom-input" id="event-date-input">
+                            </div>
+                            <button class="btn-primary" style="margin-top:10px;" onclick="saveCountdownSettings()">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-about" class="page">
+                <div class="card" style="max-width:400px; margin:50px auto; text-align:center; align-items:center;">
+                    <img src="images/myavatar.jpg" class="avatar-img" alt="Avatar">
+                    <h2 style="margin:0; color:var(--text-main)">N1n3Bird</h2>
+                    <div style="color:var(--text-sub); margin-top:5px; font-size:14px; font-weight:bold;">九鸟 ( 董庆锋 )</div>
+                    <p style="color:var(--text-sub); margin-top:20px;">Electron + C++ High Performance Gomoku</p>
+                    <div class="profile-actions">
+                        <button class="btn-action btn-github" onclick="require('electron').shell.openExternal('https://github.com/CavanasD')">GitHub</button>
+                        <button class="btn-action btn-repo" onclick="require('electron').shell.openExternal('https://github.com/CavanasD/Gomoku_Homework')">📦 Repository</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 <script src="renderer.js"></script>
 </body>
 </html>
