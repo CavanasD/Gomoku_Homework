@@ -127,7 +127,7 @@ void ChessBoard::paintEvent(QPaintEvent *event) {
     }
 }
 
-void ChessBoard::mouseMoveEvent(QMouseEvent *event) { //cnmlgb forget to fuck!
+void ChessBoard::mouseMoveEvent(QMouseEvent *event) {
     const int pieceR = 18;
     const int padding = pieceR + 2;
     const int availW = width()  - 2 * padding;

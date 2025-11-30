@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # -------------------------------- 基础配置 --------------------------------
 # 设置应用程序名称，后续所有目标、安装等都用这个变量，方便统一修改
-set(APP_NAME My_App)
+set(APP_NAME Gomoku_Homework)
 # 动态获取项目名称（使用源码目录名）
 get_filename_component(PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
 string(TOUPPER ${APP_NAME} PROJECT_NAME_CAPITALIZED)  # 转换为大写（可选）
@@ -141,6 +141,7 @@ add_executable(${APP_NAME} ${SRC_FILES}
         src/widget/gomokuLogic.h
         src/widget/aibrain.cpp
         src/widget/aibrain.h
+        src/widget/main_console.cpp
 )
 
 # 链接库和编译器选项

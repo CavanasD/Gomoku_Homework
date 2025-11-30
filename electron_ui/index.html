@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>N1n3Bird的五子棋</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+        }
+        h1 { margin-bottom: 10px; }
+        #status { color: #666; margin-bottom: 20px; font-weight: bold;}
+
+        /* 棋盘背景 */
+        #board {
+            width: 600px;
+            height: 600px;
+            background-color: #DEB887; /* 木纹色 */
+            position: relative;
+            border: 4px solid #5d4037;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* 棋盘线 */
+        #board::before {
+            content: '';
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            background-image:
+                    linear-gradient(#000 1px, transparent 1px),
+                    linear-gradient(90deg, #000 1px, transparent 1px);
+            background-size: 40px 40px; /* 格子大小 */
+            z-index: 0;
+        }
+
+        /* 棋子格子区域 */
+        .cell {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            z-index: 1; /* 在线上面 */
+            border-radius: 50%;
+            cursor: pointer;
+            transform: scale(0.8); /* 棋子稍微比格子小一点 */
+            transition: transform 0.1s;
+        }
+        .cell:hover {
+            background-color: rgba(0,0,0,0.1); /* 鼠标悬停提示 */
+        }
+
+        /* 黑白子样式 */
+        .black {
+            background: radial-gradient(circle at 30% 30%, #666, #000);
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+        .white {
+            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+
+        /* 最后一手高亮 */
+        .last-move::after {
+            content: '';
+            display: block;
+            width: 10px; height: 10px;
+            background-color: red;
+            margin: 15px auto;
+        }
+    </style>
 </head>
 <body>
+<h1>N1n3Bird的五子棋</h1>
+<h2>你能打败流萤酱吗？</h2>
+<div id="status">请执黑先行</div>
+<div id="board"></div>
+<button onclick="location.reload()" style="margin-top:20px; padding:10px 20px;">重新开始</button>
 
+<script src="renderer.js"></script>
 </body>
 </html>
