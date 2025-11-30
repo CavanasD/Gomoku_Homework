@@ -11,10 +11,6 @@ class AIBrain {
 public:
     virtual ~AIBrain() = default;
 
-    // 输入：const int (*board)[15] 表示一个 15 行的“行指针”，用法 board[x][y]
-    // 注意：实现内部不可修改传入的棋盘；必要时先拷贝到本地数组
-    // 输出：AI 计算得到的最佳落点 (x,y)
-    // 失败/无解：返回 {-1,-1}
     virtual std::pair<int,int> getBestMove(const int (*board)[15]) = 0;
 };
 

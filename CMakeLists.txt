@@ -140,7 +140,8 @@ add_executable(${APP_NAME} ${SRC_FILES}
         src/widget/gomokuLogic.cpp
         src/widget/gomokuLogic.h
         src/widget/aibrain.cpp
-        src/widget/aibrain.h)
+        src/widget/aibrain.h
+)
 
 # 链接库和编译器选项
 # PRIVATE 表示只对本目标生效
