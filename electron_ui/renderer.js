@@ -2,9 +2,7 @@ const { ipcRenderer } = require('electron')
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
-
-// ================= 0. 优先启动：时间与主题 =================
-// 放在最前面，防止后面代码报错导致时间不走
+// 先获取时间，防止报错
 function updateTime() {
     try {
         const now = new Date()
@@ -15,9 +13,9 @@ function updateTime() {
     } catch(e) { console.error("Time Error", e) }
 }
 setInterval(updateTime, 1000)
-updateTime() // 立即执行一次
+updateTime()
 
-// ================= 1. 数据管理 (带容错) =================
+// Status显示+存储
 const DATA_FILE = path.join(__dirname, 'gamedata.json')
 
 function loadData() {
@@ -36,7 +34,7 @@ function saveData(data) {
     try { fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2)) } catch(e){}
 }
 
-// ================= 2. 灵动通知 (Toast) =================
+// 悬浮弹出提示框
 let toastTimer = null
 function showToast(text, icon = '✨') {
     const toastEl = document.getElementById('toast-msg')
@@ -53,12 +51,12 @@ function showToast(text, icon = '✨') {
 }
 setTimeout(() => showToast('欢迎回来，N1n3Bird', '👋'), 1000)
 
-// ================= 3. 窗口控制 =================
+// 窗口开关最大化最小化按钮
 document.getElementById('btn-close').onclick = () => ipcRenderer.send('window-close')
 document.getElementById('btn-min').onclick = () => ipcRenderer.send('window-min')
 document.getElementById('btn-max').onclick = () => ipcRenderer.send('window-max')
 
-// ================= 4. 导航栏 =================
+// 悬浮Dock
 const navHighlight = document.getElementById('nav-highlight')
 const navItems = document.querySelectorAll('.nav-item')
 window.switchPage = (pageId, index) => {
@@ -73,7 +71,7 @@ window.switchPage = (pageId, index) => {
 }
 switchPage('home', 0)
 
-// ================= 5. 主题切换逻辑 =================
+// 颜色主题
 function applyTheme(dark) {
     const html = document.documentElement
     const icon = document.getElementById('theme-icon')
@@ -125,7 +123,7 @@ window.toggleFollowSystem = (checked) => {
     }
 }
 
-// ================= 6. 倒数日 (UI适配新HTML) =================
+// Countdown
 function initCountdown() {
     const { name, date } = appData.countdown
     const inName = document.getElementById('event-name-input')
@@ -157,7 +155,7 @@ window.saveCountdownSettings = () => {
 }
 initCountdown()
 
-// ================= 7. 系统监控 (带保护) =================
+// 瞎写的系统状态监视
 function getCpuInfo() {
     const cpus = os.cpus()
     let idle=0, total=0
@@ -196,7 +194,7 @@ function updateSystemMonitor() {
 }
 setInterval(updateSystemMonitor, 2000)
 
-// ================= 8. 战绩统计 =================
+// =Status
 function updateStatsUI() {
     try {
         const { pve } = appData
@@ -214,7 +212,7 @@ function updateStatsUI() {
 }
 updateStatsUI()
 
-// ================= 9. 游戏逻辑 =================
+// Initialize Game Board
 let currentMode = 'PVE'; let isGameActive = false; let timeLeft = 480; let timerId = null
 const layer = document.getElementById('pieces-layer')
 
@@ -248,7 +246,7 @@ window.switchMode = (mode) => {
     resetGame()
 }
 
-// ★★★ 核心修复：开始/重置游戏逻辑 ★★★
+// Game Reset
 window.resetGame = () => {
     ipcRenderer.send('ui-cmd', 'SET_MODE ' + currentMode)
     document.querySelectorAll('.piece').forEach(el => el.classList.remove('piece','black','white','last'))
@@ -331,6 +329,11 @@ function updateTimer() {
 
 function endGame(winner) {
     isGameActive = false; if(timerId) clearInterval(timerId)
+    // 记得去除遮罩
+
+    const blocker = document.getElementById('blocker')
+    if(blocker) blocker.style.display = 'none'
+
     let text = `${winner} WIN!`
     if (winner==='BLACK') text=(currentMode==='PVE')?"⚫ 流萤酱获胜！":"⚫ 黑方获胜！"
     if (winner==='WHITE') text=(currentMode==='PVE')?"⚪ 你赢了！":"⚪ 白方获胜！"
@@ -347,7 +350,7 @@ function endGame(winner) {
     }
 }
 
-// 每日一言
+// 每日一言api
 fetch('https://v.api.aa1.cn/api/yiyan/index.php').then(r=>r.text()).then(t=>{
     const el = document.getElementById('daily-quote')
     if(el) el.innerText=t.replace(/<[^>]*>?/gm,'')

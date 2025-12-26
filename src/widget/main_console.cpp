@@ -58,7 +58,7 @@ int main() {
                 game.reset(); // 重置棋盘
                 cout << "GAME_STARTED" << endl;
 
-                // ★★★ 核心修改：如果是 PVE，流萤酱(黑)直接先手 ★★★
+
                 if (isPvE) {
                     game.placePiece(7, 7); // 必走天元
                     cout << "MOVED 7,7,1" << endl; // 1=黑
@@ -70,7 +70,6 @@ int main() {
             game.reset();
             cout << "GAME_STARTED" << endl;
 
-            // ★★★ 核心修改：重开时流萤酱也要先手 ★★★
             if (isPvE) {
                 game.placePiece(7, 7);
                 cout << "MOVED 7,7,1" << endl;
@@ -96,8 +95,6 @@ int main() {
             else if (game.state() == GomokuLogic::WhiteWin) { cout << "WINNER WHITE" << endl; continue; }
             else if (game.state() == GomokuLogic::Draw) { cout << "WINNER DRAW" << endl; continue; }
 
-            // ★★★ 核心修改：AI 触发时机 ★★★
-            // 只有当“刚才下的是白棋(2)”时，AI(黑)才行动
             if (isPvE && pieceColor == 2 && game.state() == GomokuLogic::InProgress) {
 
                 cout << "AI_THINKING" << endl;

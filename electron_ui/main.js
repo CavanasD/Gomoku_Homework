@@ -46,7 +46,6 @@ ipcMain.on('window-min', (event) => {
     if (win) win.minimize()
 })
 
-// ★★★ 修复最大化/还原逻辑 ★★★
 ipcMain.on('window-max', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (win) {

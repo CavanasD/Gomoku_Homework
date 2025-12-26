@@ -1,14 +1,4 @@
-//
-// Created by CavanasD on 2025/10/6.
-//
-
 #include "gomokuLogic.h"
-
-// 逻辑层实现（Model）：
-// - reset(): 清空棋盘、设置黑先与状态；
-// - placePiece(x,y): 校验并落子，更新 lastMove 与状态（胜/和/轮转）；
-// - checkWinFrom(): 从最近一步做四方向局部扫描；
-// - isBoardFull(): 判断是否无空位（和棋）。
 
 GomokuLogic::GomokuLogic() {
     reset();
@@ -16,9 +6,9 @@ GomokuLogic::GomokuLogic() {
 
 void GomokuLogic::reset() {
     // 清空棋盘与状态（黑先，进行中）
-    for (int i = 0; i < 15; ++i) {
-        for (int j = 0; j < 15; ++j) {
-            board[i][j] = 0;
+    for (auto& row : board) {
+        for (auto& cell : row) {
+            cell = 0;
         }
     }
     turn = Black;
@@ -34,7 +24,7 @@ bool GomokuLogic::placePiece(int x, int y) {
     if (board[x][y] != 0) return false;
 
     // 落子并记录最后一步
-    board[x][y] = static_cast<int>(turn);
+    board[x][y] = (int)turn;
     lastMoveX = x;
     lastMoveY = y;
 
@@ -87,9 +77,9 @@ bool GomokuLogic::checkWinFrom(int x, int y) const {
 }
 
 bool GomokuLogic::isBoardFull() const {
-    for (int i = 0; i < 15; ++i) {
-        for (int j = 0; j < 15; ++j) {
-            if (board[i][j] == 0) return false;
+    for (const auto& row : board) {
+        for (int cell : row) {
+            if (cell == 0) return false;
         }
     }
     return true;

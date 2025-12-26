@@ -13,6 +13,7 @@
   },
   "private": true,
   "devDependencies": {
-    "electron": "^39.2.4"
+    "electron": "^39.2.4",
+    "electron-packager": "^17.1.2"
   }
 }
