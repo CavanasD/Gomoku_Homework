@@ -1,5 +1,6 @@
 # 五子棋 AI 实验报告 (Gomoku AI Lab Report)
 
+#### 董庆锋 2025080911006
 ## 1. 实验环境 (Environment)
 
 ### 硬件环境 (Hardware)
@@ -157,10 +158,9 @@ if (isPvE) {
 
 ## 4. UI 展示 (UI Showcase)
 
-*(在此处插入你的 UI 截图，展示漂亮的 Electron 界面)*
+
 ![游戏主界面](./electron_ui/images/screenshot_main.png)
 
-*(在此处插入对局截图)*
 ![对局画面](./electron_ui/images/screenshot_game.png)
 
 ---
