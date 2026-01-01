@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <random>
 #include <climits>
-
 #include <cstring>
 #include <ranges> // C++20/23
 #include <span>   // C++20
@@ -101,12 +100,10 @@ struct PatternCount { int five=0, o4=0, b4=0, o3=0, b3=0, o2=0, b2=0; };
 
 // 在一条线（指针+步长）中统计给定颜色的各种模式
 static void countPatternsLine(const int* start, int stride, int length, int color, PatternCount &pc){
-    // 使用滑窗方式扫描
     // 五连、四连、三连、二连模式识别涉及到空位边界
     for(int i=0;i<length;++i){
         // Helper lambda for strided access
         auto at = [&](int idx) { return *(start + idx * stride); };
-
         // 跳过空减少一些冗余
         // 直接五连
         if(i+4<length){
@@ -115,7 +112,7 @@ static void countPatternsLine(const int* start, int stride, int length, int colo
         }
         // 检查 6 长度窗口用于开放端判断
         if(i+5<length){
-            // 活四: 0 C C C C 0 (中间四个 color, 两端空)
+            // 活四: 0 C C C C 0 (中间四个, 两端空)
             if(at(i)==0 && at(i+5)==0){
                 int cnt=0; for(int k=1;k<=4;++k) if(at(i+k)==color) ++cnt; else break; if(cnt==4) pc.o4++; // 0CCCC0
             }
