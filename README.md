@@ -1,5 +1,6 @@
 # 五子棋 AI 实验报告 (Gomoku AI Lab Report)
 
+#### 董庆锋 2025080911006 
 ## 1. 实验环境 (Environment)
 
 ### 硬件环境 (Hardware)
