@@ -3,12 +3,10 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <unordered_map>
 #include <random>
 #include <climits>
 #include <cstring>
-#include <ranges> // C++20/23
-#include <span>   // C++20
+#include <span>
 #include <windows.h>
 
 AlphaBeta::AlphaBeta(int timeLimitMs,

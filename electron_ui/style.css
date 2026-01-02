@@ -122,7 +122,7 @@ body {
 /* 主布局 */
 #main-layout { flex: 1; display: flex; position: relative; overflow: hidden; }
 
-/* ================== ★ 侧边栏 (固定不展开) ★ ================== */
+/* 侧边栏 (固定不展开)  */
 #sidebar {
     position: absolute; left: 16px; top: 20px; bottom: 20px;
     width: var(--nav-width); background: var(--nav-bg);

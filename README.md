@@ -1,28 +1,40 @@
-# 五子棋 AI 实验报告 (Gomoku AI Lab Report)
+# 五子棋 AI 实验报告 
 
 #### 董庆锋 2025080911006
-## 1. 实验环境 (Environment)
+
+## 摘要
+
+本实验实现了一个具备完整交互界面与 AI 对弈能力的五子棋程序。项目采用 **Electron + C++** 的分层架构：前端（Electron）负责 UI 渲染、交互与状态展示；后端（C++）负责棋局规则与 AI 搜索计算，并通过 **标准输入输出（stdio）** 与前端进行实时通信。
+
+在工程实现上，我经历了从 **Qt UI 到 Electron UI** 的重构过程：将原有桌面界面迁移到 Web 技术栈，完成了页面布局、动效、主题切换、数据持久化等功能，并梳理了“主进程/渲染进程/子进程（C++）”之间的通信链路，形成一个可维护的前后端协作模式。这一过程让我系统性地理解了全栈开发中的模块划分、接口设计与数据流动。
+
+在算法实现上，AI 以 **Minimax + Alpha-Beta 剪枝** 为核心，并结合 **迭代加深**、**启发式估值（棋型打分/预设定式）** 与 **Zobrist 哈希置换表** 等优化策略，使其能够在限时条件下稳定给出较高质量的落子决策。实验最终实现了一个可跨平台运行、界面美观且具备一定强度的五子棋 AI 对弈系统。
+
+---
+
+## 1. 实验环境 
 
 ### 硬件环境 (Hardware)
 *   **CPU**: Intel Core Ultra 9 275HX
 *   **RAM**: 32GB
 *   **Storage**: 1TB UMIS SSD
 
-### 软件环境 (Software)
-本项目具有良好的跨平台兼容性，在以下环境中均经过测试并正常运行：
-*   **Windows**: Windows 11
+### 软件环境 
+本项目具有良好的跨平台兼容性，在以下环境中均经过测试并可正常运行：
+*   **Windows**: Windows 11 25H2 26220.7523 (运行于本地机器)
 *   **Linux**: Ubuntu 22.04 (运行于 VMware 虚拟机)
-*   **开发框架**: Electron (Frontend), C++ (Backend/AI Core)
+*   **开发框架**: Electron (前端), C++ (后端算法)
 
 ---
 
-## 2. 核心实现与全栈架构 (Core Implementation & Full-stack Architecture)
+## 2. 核心实现与全栈架构 
 
-本项目采用 **Electron + C++** 的全栈架构，前端负责界面渲染与交互，后端负责高性能 AI 计算。两者通过标准输入输出 (Standard I/O) 进行实时通讯。
+本项目采用 **Electron + C++** 的全栈架构：前端负责界面渲染与交互，后端负责高性能 AI 计算；两者通过标准输入输出 (Standard I/O) 进行实时通讯。
+（项目早期曾使用 Qt 编写界面，但为了获得更灵活的 UI 表达与更高的可扩展性，后续重构为 Electron 前端。）
 
-### 2.1 全栈架构与前后端通讯 (Full-stack & Communication)
+### 2.1 全栈架构与前后端通讯
 
-#### Electron 端 (前端)
+#### Electron 前端
 前端使用 Electron 框架，通过 Node.js 的 `child_process` 模块启动 C++ 核心进程。
 在 `electron_ui/main.js` 中，我们管理着后端进程的生命周期：
 
@@ -56,7 +68,7 @@ function handleUserMove(x, y) {
 }
 ```
 
-#### C++ 端 (后端)
+#### C++ 后端
 后端是一个控制台应用程序，核心逻辑位于 `src/widget/main_console.cpp`。它维护一个死循环，不断读取标准输入指令，调用 AI 计算，并将结果打印到标准输出。
 
 ```cpp
@@ -90,11 +102,11 @@ int main() {
 }
 ```
 
-### 2.2 AI 核心算法 (AI Core Algorithm)
+### 2.2 AI 核心算法 
 
 AI 模块 (`src/widget/aibrain.cpp`) 实现了基于 **Alpha-Beta 剪枝** 的 Minimax 算法，并结合了多种优化策略。
 
-#### 1. 迭代加深 (Iterative Deepening)
+#### 1. 迭代加深
 为了在有限时间 (`timeLimitMs_`) 内给出最佳走法，我们不固定搜索深度，而是从浅到深逐步搜索。这确保了 AI 随时都能返回当前最优解，避免超时。
 
 ```cpp
@@ -113,7 +125,7 @@ for(int depth=1; depth<=MAX_DEPTH; ++depth){
 }
 ```
 
-#### 2. 启发式评估与预设定式 (Heuristic Evaluation & Patterns)
+#### 2. 启发式评估与预设定式
 为了弥补纯搜索的不足，我们在 `evaluate` 函数中引入了基于棋型的评分机制。这实际上是一种“软编码”的定式库。
 我们定义了不同棋型的权重：
 
@@ -128,7 +140,7 @@ static constexpr int SCORE_OPEN_THREE = 15'000;      // 活三
 
 通过 `countPatternsLine` 函数扫描全盘，统计各种棋型的数量并计算总分。这使得 AI 能够识别“活三”、“冲四”等关键形状。
 
-#### 3. Zobrist Hashing & 置换表
+#### 3. Zobrist 哈希 & 置换表
 使用 Zobrist Hashing 将棋盘状态映射为唯一的 64 位哈希值，并利用置换表 (`TRANS_TABLE`) 缓存搜索结果，极大减少了重复计算。
 
 ```cpp
@@ -156,28 +168,40 @@ if (isPvE) {
 
 ---
 
-## 4. UI 展示 (UI Showcase)
+## 4. UI 展示
 
-
-![游戏主界面](./electron_ui/images/screenshot_main.png)
-
-![对局画面](./electron_ui/images/screenshot_game.png)
-
+主界面
+![游戏主界面](./electron_ui/images/主页.png)
+对局
+![对局画面](./electron_ui/images/下棋.png)
+思考时加入了高斯模糊遮罩
+![对局画面](./electron_ui/images/下棋_思考.png)
+胜利统计功能
+![胜利画面](./electron_ui/images/胜利统计.png)
+支持深色浅色切换
+![设置界面](./electron_ui/images/浅色模式.png)
+![设置界面](./electron_ui/images/浅色主页.png)
+支持跟随系统（Node.js库）
+![设置界面](./electron_ui/images/跟随系统.png)
+主页倒计时支持自定义
+![设置界面](./electron_ui/images/自定义事件.png)
+个人主页
+![个人主页](./electron_ui/images/个人主页.png)
 ---
 
-## 5. 改进方向 (Future Improvements)
+## 5. 改进方向 
 
 结合当前代码结构，未来可以在以下方面进行优化：
 
-1.  **算力优化 (Multithreading)**:
-    目前的 `alphabeta` 搜索是单线程的。可以利用 Intel Ultra 9 的多核优势，实现 **并行 Alpha-Beta 搜索 (PVS)** 或 **Lazy SMP**，显著提高搜索深度。
+1.  **算力优化 **:
+    目前的 `alphabeta` 搜索是单线程的。也许可以尝试CUDA并行化，利用GPU强大的并行计算能力来加速搜索过程，从而提升AI的思考深度和速度。
 
-2.  **更完善的开局库 (Opening Book)**:
+2.  **更完善的开局库 **:
     目前仅硬编码了天元开局。可以引入外部的 `.lib` 或数据库文件，存储常见的高胜率开局（如花月、浦月等），在游戏前几手直接查表，瞬间落子。
 
 3.  **蒙特卡洛树搜索 (MCTS)**:
     虽然 Alpha-Beta 在五子棋中很强，但结合 MCTS 可以更好地处理复杂的中盘局面，提供更具“大局观”的走法。
 
-4.  **神经网络评估 (Neural Network Evaluation)**:
+4.  **神经网络评估 **:
     目前的 `evaluate` 函数是基于人工定义的模式权重（Feature Engineering）。可以训练一个轻量级的 CNN（卷积神经网络）来替代手工估值函数，让 AI 学习更微妙的棋型组合。
 

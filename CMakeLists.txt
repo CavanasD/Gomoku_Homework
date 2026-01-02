@@ -24,6 +24,7 @@ set(SRC_FILES
     src/widget/gomokuLogic.h
     src/widget/aibrain.cpp
     src/widget/aibrain.h
+        src/widget/main_console.cpp
 
 )
 

@@ -1,7 +1,3 @@
-//
-// Created by CavanasD on 2025/10/6.
-//
-
 #ifndef MY_APP_GOMOKULOGIC_H
 #define MY_APP_GOMOKULOGIC_H
 

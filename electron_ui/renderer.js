@@ -350,8 +350,28 @@ function endGame(winner) {
     }
 }
 
-// 每日一言api
-fetch('https://v.api.aa1.cn/api/yiyan/index.php').then(r=>r.text()).then(t=>{
-    const el = document.getElementById('daily-quote')
-    if(el) el.innerText=t.replace(/<[^>]*>?/gm,'')
-}).catch(()=>{})
+// 每日一言 api（接口返回 JSON：{ code, msg, data, request_id }）
+fetch('https://v2.xxapi.cn/api/dujitang')
+    .then(async (r) => {
+        // 有些接口 Content-Type 可能不严格，优先 text 再 JSON.parse 更稳
+        const raw = await r.text()
+        try {
+            return JSON.parse(raw)
+        } catch {
+            // 兜底：如果不是 JSON，就按纯文本处理
+            return { code: -1, data: raw }
+        }
+    })
+    .then((json) => {
+        const el = document.getElementById('daily-quote')
+        if (!el) return
+
+        // 优先取 data，其次兜底到 msg / 原始字符串
+        const quote = (json && (json.data || json.msg)) ? String(json.data || json.msg) : ''
+
+        // 去掉可能混入的 HTML 标签
+        el.innerText = quote.replace(/<[^>]*>?/gm, '')
+    })
+    .catch((e) => {
+        console.error('Daily quote fetch failed:', e)
+    })
