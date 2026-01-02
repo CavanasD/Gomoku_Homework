@@ -1,11 +1,14 @@
 {
-  "name": "electron_ui",
+  "name": "gomoku-firefly",
+  "productName": "Gomoku_Firefly",
   "version": "1.0.0",
-  "description": "",
+  "description": "Gomoku Pro - Electron UI + C++ AI Core",
   "main": "main.js",
+  "author": "N1n3Bird",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pack:win": "electron-packager . Gomoku_Firefly --platform=win32 --arch=x64 --overwrite --out=release --asar --icon=images\\app --extra-resource=gomoku_core.exe --prune=true",
+    "dist:win:zip": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$ErrorActionPreference='Stop'; $src='release\\Gomoku_Firefly-win32-x64'; if(!(Test-Path $src)){ throw 'Run npm run pack:win first.' }; Compress-Archive -Path ($src+'\\*') -DestinationPath ('release\\Gomoku_Firefly-win32-x64.zip') -Force\""
   },
   "repository": {
     "type": "git",
